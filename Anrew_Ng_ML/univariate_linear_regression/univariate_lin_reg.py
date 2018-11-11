@@ -33,8 +33,12 @@ def mean_square_error(head_size,brain_weight,w1,b):
 def learn_model(w1,b,head_size,brain_weight,no_of_iterations,learning_rate_w1, learning_rate_b):
 	tmp1 = 0
 	tmpb = 0
-	for i in range(no_of_iterations):
-		# if i % 10000 == 0:
+	iterations=[]
+	cost = []
+	for i in range(no_of_iterations):		
+		if i % 500 == 0:
+			iterations.append(i)
+			cost.append(mean_square_error(head_size,brain_weight,w1,b))
 			# print gradient_w1(head_size,brain_weight,w1,b)
 			# print gradient_b(head_size,brain_weight,w1,b)
 			# print mean_square_error(head_size,brain_weight,w1,b)
@@ -43,6 +47,10 @@ def learn_model(w1,b,head_size,brain_weight,no_of_iterations,learning_rate_w1, l
 		tmpb = b - learning_rate_b * gradient_b(head_size,brain_weight,w1,b)
 		w1 = tmp1
 		b = tmpb
+	plt.scatter(iterations,cost,c = 'blue',label='Scatter plot')
+	plt.xlabel('iterations')
+	plt.ylabel('Cost')	
+	plt.show()
 	return [w1,b]	
 
 def myplot(head_size,brain_weight,w1,b):
@@ -58,27 +66,52 @@ def myplot(head_size,brain_weight,w1,b):
 def sigmoid(x):
 	return 1/(1 + np.exp(-x))
 
+def normalize(vector):
+	mean = np.mean(vector)
+	min_v = np.min(vector)
+	max_v = np.max(vector)
+	range_v = max_v - min_v
+	arr = np.array([(x-mean)/range_v for x in vector])
+	return arr
+
 def main():
 	data = pd.read_csv('headbrain.csv')
 	print data.shape
 	print data.head()
 	head_size = data['Head Size(cm^3)'].values
+	mean_head = np.mean(head_size)
+	range_v = np.max(head_size) - np.min(head_size)
+	head_size = normalize(head_size)
 	brain_weight = data['Brain Weight(grams)'].values
+	mean_brain = np.mean(brain_weight)
+	range_b = np.max(brain_weight) - np.min(brain_weight)
+	brain_weight = normalize(brain_weight)
+	print np.min(brain_weight)
+	print np.max(brain_weight)
 	w1 = 0.0
 	b = 0
 	#myplot(head_size,brain_weight,w1,b)
 	#g = gradient_w1(head_size,brain_weight,w1,b)
 	#print  -0.0000001 * g
-	no_of_iterations = 50000
-	learning_rate_w1 = 0.00000001
-	learning_rate_b = 0.015
+	no_of_iterations = 10000
+	learning_rate_w1 = 0.01
+	learning_rate_b = 0.01
 	[fit_w1, fit_b] = learn_model(w1,b,head_size,brain_weight,no_of_iterations,learning_rate_w1,learning_rate_b)
+	#fit_w1 = 0.7543
+	#fit_b = -5.24147064242e-17
+	print 'Model'
 	print fit_w1
 	print fit_b
+	print '--'
 	myplot(head_size,brain_weight,fit_w1,fit_b)
 	new_data = 3750
+	
+	new_data = (new_data - mean_head)/(range_v)
+	print 'new data'
+	print new_data
+	print 'mean_brain', mean_brain
 	print 'prediction'
-	print prediction(fit_w1,fit_b,new_data)
+	print (prediction(fit_w1,fit_b,new_data) + mean_brain)
 
 
 if __name__ == '__main__':
@@ -93,3 +126,9 @@ if __name__ == '__main__':
 # Might not be the correct approach to change the learning rate. I think it has something to be done
 # with Normalizing the data.
 # Ask the Professor and clear the doubt
+# To do :
+# how to denormalize data
+#
+# Andrew NG course - normalize data according to this (xi - mean)/range
+# Plot Cost vs iterations to see the Gradient descent if it is working 
+#
