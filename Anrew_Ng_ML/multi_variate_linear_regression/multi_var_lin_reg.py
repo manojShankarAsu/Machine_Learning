@@ -126,3 +126,4 @@ if __name__ == '__main__':
 
 # Without normalizing the prediction is better
 # learning rate = 0.0001 and epochs = 50000
+# https://mubaris.com/posts/linear-regression/
