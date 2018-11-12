@@ -39,10 +39,6 @@ def learn_model(w1,b,head_size,brain_weight,no_of_iterations,learning_rate_w1, l
 		if i % 500 == 0:
 			iterations.append(i)
 			cost.append(mean_square_error(head_size,brain_weight,w1,b))
-			# print gradient_w1(head_size,brain_weight,w1,b)
-			# print gradient_b(head_size,brain_weight,w1,b)
-			# print mean_square_error(head_size,brain_weight,w1,b)
-			# print '--'
 		tmp1 = w1 - learning_rate_w1 * gradient_w1(head_size,brain_weight,w1,b)
 		tmpb = b - learning_rate_b * gradient_b(head_size,brain_weight,w1,b)
 		w1 = tmp1
