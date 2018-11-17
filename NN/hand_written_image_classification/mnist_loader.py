@@ -44,7 +44,28 @@ def load_data():
     f.close()
     return (training_data, validation_data, test_data)
 
-def load_data_wrapper():
+def get_required_data(tup, no):
+    per_class = no / 10
+    total_count = 0
+    data = np.zeros((no,784))
+    labels = np.zeros((no))
+    count = [0,0,0,0,0,0,0,0,0,0]
+    index = 0
+
+    for idx, y in enumerate(tup[1]):
+        if total_count >= no:
+            break
+        if count[int(y)] < per_class:
+            count[int(y)] += 1
+            total_count += 1
+            data[index] = tup[0][idx]
+            labels[index] = y
+            index += 1
+    mytup = (data,labels)
+    return mytup 
+
+
+def load_data_wrapper(noTrainingData, noTestData, noValData):
     """Return a tuple containing ``(training_data, validation_data,
     test_data)``. Based on ``load_data``, but the format is more
     convenient for use in our implementation of neural networks.
@@ -66,6 +87,18 @@ def load_data_wrapper():
     turn out to be the most convenient for use in our neural network
     code."""
     tr_d, va_d, te_d = load_data()
+    # print tr_d[0][0].shape # 1 * 784
+    # print tr_d[1].shape 
+    # print tr_d[1][0:2]
+    # for idx, y in enumerate(tr_d[1]):
+    #     print idx,y
+    #     if idx > 3:
+    #         break
+
+
+    tr_d = get_required_data(tr_d,noTrainingData)
+    va_d = get_required_data(va_d,noValData)
+    te_d = get_required_data(te_d,noTestData)
     training_inputs = [np.reshape(x, (784, 1)) for x in tr_d[0]]
     training_results = [vectorized_result(y) for y in tr_d[1]]
     training_data = zip(training_inputs, training_results)
@@ -81,5 +114,5 @@ def vectorized_result(j):
     (0...9) into a corresponding desired output from the neural
     network."""
     e = np.zeros((10, 1))
-    e[j] = 1.0
+    e[int(j)] = 1.0
     return e

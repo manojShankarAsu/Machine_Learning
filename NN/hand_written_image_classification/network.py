@@ -102,7 +102,9 @@ def main():
 	dimensions = map(int,dimension_string.strip('[]').split(','))
 	net = NeuralNetwork(dimensions) # map(int,input.strip('[]').split(','))
 	(training_data, validation, test_data) = load_data_wrapper()
-	net.SGD(training_data,30,10,3.0,test_data=test_data)
+	for (x,y) in training_data:
+			print y
+	#net.SGD(training_data,30,10,3.0,test_data=test_data)
 
 
 
