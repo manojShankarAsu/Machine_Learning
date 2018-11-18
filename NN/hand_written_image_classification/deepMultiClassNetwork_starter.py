@@ -44,27 +44,37 @@ class NeuralNetwork(object):
 
 
 
-	def BatchGD(self,training_data,epochs,learning_rate,test_data=None):
+	def BatchGD(self,training_data,epochs,learning_rate,test_data=None,val_data=None):
 		if test_data:
 			n_test = len(test_data)
 		n = len(training_data)
-		iterations = []
-		cost_iter = []
+		train_iterations = []
+		train_cost_iter = []
+		val_iterations = []
+		val_cost_iter = []
 		for j in xrange(epochs):
-			#random.shuffle(training_data)
+			random.shuffle(training_data)
 			self.update_batch(training_data,learning_rate)
-			if test_data:
-				print "Epoch {0}: {1} / {2}".format(j, self.evaluate(test_data), n_test)
-			else:
-				print "Epoch {0} complete".format(j)
-				iterations.append(j)
-				tmp = self.cost(training_data)
-				cost_iter.append(tmp)
-				print tmp
-		plt.scatter(iterations,cost_iter,c = 'blue',label='Scatter plot')
-		plt.xlabel('iterations')
+
+			train_cost  = self.cost(training_data)			
+			train_iterations.append(j)
+			train_cost_iter.append(train_cost)
+
+			val_cost = self.cost(val_data)
+			val_iterations.append(j)
+			val_cost_iter.append(val_cost)			
+			#print "Epoch {0} complete. Cost {1}".format(j,train_cost)
+			#print "Validation cost {0}".format(val_cost)	
+		fig = plt.figure()
+		ax1 = fig.add_subplot(111)
+		ax1.scatter(train_iterations,train_cost_iter,c = 'blue',label='Training Cost vs Iterations')
+		ax1.scatter(val_iterations,val_cost_iter,c = 'red',label='Validation Cost vs Iterations')
+		plt.xlabel('Iterations')
 		plt.ylabel('Cost')
 		plt.show()
+		print 'Accuracy:'
+		acc = self.evaluate(test_data)
+		print acc
 
 
 
@@ -91,6 +101,7 @@ class NeuralNetwork(object):
 		plt.xlabel('iterations')
 		plt.ylabel('Cost')
 		plt.show()
+
 
 	def update_batch(self,mini_batch,learning_rate):
 		total_gradient_b = [np.zeros(b.shape) for b in self.biases]
@@ -165,8 +176,13 @@ def main():
 	net = NeuralNetwork(dimensions) # map(int,input.strip('[]').split(','))
 	(training_data, validation, test_data) = load_data_wrapper(5000,1000,1000)
 	#print training_data[0:2]
-	net.SGD(training_data,30,10,0.1)
-	#net.BatchGD(training_data,30,10)
+	#net.SGD(training_data,30,10,0.1)
+	
+	epochs = 500
+	learning_rate = 0.1
+	print 'Multilayer Neural Network'
+	print 'Batch descent : No Of Iterations : {0} Learning_rate : {1}'.format(epochs,learning_rate)
+	net.BatchGD(training_data,epochs,learning_rate,test_data=test_data,val_data=validation)
 	# train_data, train_label, test_data, test_label = \
 	# 		mnist(noTrSamples=5000,noTsSamples=1000,\
 	# 		digit_range=[0,1,2,3,4,5,6,7,8,9],\
