@@ -63,14 +63,17 @@ class NeuralNetwork(object):
 			val_cost = self.cost(val_data)
 			val_iterations.append(j)
 			val_cost_iter.append(val_cost)			
-			#print "Epoch {0} complete. Cost {1}".format(j,train_cost)
-			#print "Validation cost {0}".format(val_cost)	
+			print "Epoch {0} complete. Cost {1}".format(j,train_cost)
+			print "Validation cost {0}".format(val_cost)
 		fig = plt.figure()
+		tit = 'Multilayer Neural Network : Cost vs Iterations graph. Iterations:{0}  Learning rate:{1}'.format(epochs,learning_rate)
+		fig.suptitle(tit, fontsize=15)
 		ax1 = fig.add_subplot(111)
 		ax1.scatter(train_iterations,train_cost_iter,c = 'blue',label='Training Cost vs Iterations')
 		ax1.scatter(val_iterations,val_cost_iter,c = 'red',label='Validation Cost vs Iterations')
 		plt.xlabel('Iterations')
 		plt.ylabel('Cost')
+		plt.legend(loc='upper left');
 		plt.show()
 		print 'Accuracy:'
 		acc = self.evaluate(test_data)
@@ -174,7 +177,7 @@ def main():
 	dimension_string = sys.argv[1]
 	dimensions = map(int,dimension_string.strip('[]').split(','))
 	net = NeuralNetwork(dimensions) # map(int,input.strip('[]').split(','))
-	(training_data, validation, test_data) = load_data_wrapper(5000,1000,1000)
+	(training_data, validation, test_data) = load_data_wrapper(4000,500,500)
 	#print training_data[0:2]
 	#net.SGD(training_data,30,10,0.1)
 	
