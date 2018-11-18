@@ -45,24 +45,45 @@ def load_data():
     return (training_data, validation_data, test_data)
 
 def get_required_data(tup, no):
-    per_class = no / 10
+    per_class = no / 2
     total_count = 0
     data = np.zeros((no,784))
     labels = np.zeros((no))
-    count = [0,0,0,0,0,0,0,0,0,0]
+    count = [0,0]
     index = 0
 
     for idx, y in enumerate(tup[1]):
         if total_count >= no:
             break
-        if count[int(y)] < per_class:
-            count[int(y)] += 1
-            total_count += 1
-            data[index] = tup[0][idx]
-            labels[index] = y
-            index += 1
+        if y == 1:
+            if count[0] < per_class:
+                count[0] += 1
+                total_count += 1
+                data[index] = tup[0][idx]
+                labels[index] = 0
+                index += 1
+        elif y == 7:
+            if count[1] < per_class:
+                count[1] += 1
+                total_count += 1
+                data[index] = tup[0][idx]
+                labels[index] = 1
+                index += 1
     mytup = (data,labels)
     return mytup 
+
+def convert_to_binary_labels(test_data,noofSamples):
+    images = test_data[0]
+    labels = np.zeros((noofSamples))
+    index = 0
+    for idx,y in enumerate(test_data[1]):
+        if y == 1:
+            labels[idx] = 0
+        elif y == 7:
+            labels[idx] = 1
+    mytup = (images,labels)
+    return mytup
+            
 
 
 def load_data_wrapper(noTrainingData, noTestData, noValData):
@@ -106,7 +127,8 @@ def load_data_wrapper(noTrainingData, noTestData, noValData):
     validation_inputs = [np.reshape(x, (784, 1)) for x in va_d[0]]
     validation_results = [vectorized_result(y) for y in va_d[1]]
     validation_data = zip(validation_inputs, validation_results)
-    
+
+    test_inputs = convert_to_binary_labels(te_d,noTestData)
     test_inputs = [np.reshape(x, (784, 1)) for x in te_d[0]]
     test_data = zip(test_inputs, te_d[1])
     return (training_data, validation_data, test_data)
