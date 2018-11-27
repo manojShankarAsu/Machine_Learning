@@ -15,6 +15,7 @@ import gzip
 
 # Third-party libraries
 import numpy as np
+import os
 
 def load_data():
     """Return the MNIST data as a tuple containing the training data,
@@ -39,6 +40,7 @@ def load_data():
     That's done in the wrapper function ``load_data_wrapper()``, see
     below.
     """
+    data_dir = os.getcwd()
     f = gzip.open('/home/manoj/Machine_Learning/NN/hand_written_image_classification/data/mnist.pkl.gz', 'rb')
     training_data, validation_data, test_data = cPickle.load(f)
     f.close()

@@ -2,12 +2,19 @@ import random
 import numpy as np
 from mnist_loader import load_data_wrapper
 import sys
+from mnist_reader import load_mnist_wrapper
+from load_mnist import mnist
+import os
+import matplotlib.pyplot as plt
 
 def sigmoid(z):
 	return 1.0 / (1.0 + np.exp(-z)) 
 
 def sigmoid_prime(z):
 	return sigmoid(z) * (1 - sigmoid(z))
+
+def square(z):
+	return z ** 2
 
 class NeuralNetwork(object):
 
@@ -44,10 +51,22 @@ class NeuralNetwork(object):
 			mini_batches = [training_data[k:k+mini_batch_size] for k in xrange(0,n,mini_batch_size)]
 			for mini_batch in mini_batches:
 				self.update_batch(mini_batch,learning_rate)
+			# if j % 3 == 0:
+			# 	cost = self.cost(training_data)
+			# 	print 'cost {0}'.format(cost)
 			if test_data:
 				print "Epoch {0}: {1} / {2}".format(j, self.evaluate(test_data), n_test)
 			else:
 				print "Epoch {0} complete".format(j)
+	
+	def cost(self,training_data):
+		costt = 0
+		for x,y in training_data:
+			prediction = self.feedforward(x)
+			diff = prediction - y
+			diff = square(diff)
+			costt += np.sum(diff)
+		return costt / len(training_data)
 
 	def update_batch(self,mini_batch,learning_rate):
 		total_gradient_b = [np.zeros(b.shape) for b in self.biases]
@@ -101,8 +120,69 @@ def main():
 	dimension_string = sys.argv[1]
 	dimensions = map(int,dimension_string.strip('[]').split(','))
 	net = NeuralNetwork(dimensions) # map(int,input.strip('[]').split(','))
-	(training_data, validation, test_data) = load_data_wrapper()
-	net.SGD(training_data,30,10,3.0,test_data=test_data)
+	data_dir = os.getcwd()
+	fashion_data = os.path.join(data_dir,'fashion_mnist')
+	no_training = 2000
+	train_data, train_label, test_data, test_label = mnist(noTrSamples=no_training,noTsSamples=1000,\
+            digit_range=[0,1,2,3,4,5,6,7,8,9],\
+            noTrPerClass=no_training/10, noTsPerClass=100)
+	no_of_images = train_data.shape[1]
+	mu, sigma = 0.1, 0.2
+	# row1=train_data[:,0]
+	# row1_mat=row1.reshape(28,28)
+	# plt.matshow(row1_mat)
+	# plt.show()
+	noise = np.random.normal(mu, sigma, [784, no_training])
+	noised_train_data=train_data+noise
+	# noiserow1=noised_train_data[:,0]
+	# noiserow1=noiserow1.reshape(28,28)
+	# plt.matshow(noiserow1)
+	# plt.show()
+	train_images = [  np.reshape(noised_train_data[:,i] , (784,1)) for i in xrange(no_of_images)]
+	train_label = [  np.reshape(train_data[:,i] , (784,1)) for i in xrange(no_of_images)]
+	new_train_data = zip(train_images,train_label)
+	# print 'Train Noisy image'
+	# noiserow1=new_train_data[0][0]
+	# noiserow1=noiserow1.reshape(28,28)
+	# plt.matshow(noiserow1)
+	# plt.show()
+	# print 'Original image'
+	# noiserow1=new_train_data[0][1]
+	# noiserow1=noiserow1.reshape(28,28)
+	# plt.matshow(noiserow1)
+	# plt.show()
+
+	net.SGD(new_train_data,500,10,1.2,test_data=None)
+	print 'Predicted Data'
+	pred = net.feedforward(new_train_data[0][0])
+	pred=pred.reshape(28,28)
+	plt.matshow(pred)
+	plt.show()
+
+	print 'Original data'
+	noiserow1=new_train_data[0][1]
+	noiserow1=noiserow1.reshape(28,28)
+	plt.matshow(noiserow1)
+	plt.show()
+
+	print 'Noised data'
+	noiserow1=new_train_data[0][0]
+	noiserow1=noiserow1.reshape(28,28)
+	plt.matshow(noiserow1)
+	plt.show()
+
+	weight_filename = 'weight_{0}'
+	bias_filename = 'bias_{0}'
+	i = 1
+	for weight in net.weights:
+		np.savetxt(weight_filename.format(i),weight)
+		i+=1
+	i = 1
+	for bias in net.biases:
+		np.savetxt(bias_filename.format(i),bias)
+		i+=1
+
+
 
 
 
