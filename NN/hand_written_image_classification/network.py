@@ -122,10 +122,10 @@ def main():
 	net = NeuralNetwork(dimensions) # map(int,input.strip('[]').split(','))
 	data_dir = os.getcwd()
 	fashion_data = os.path.join(data_dir,'fashion_mnist')
-	no_training = 2000
-	train_data, train_label, test_data, test_label = mnist(noTrSamples=no_training,noTsSamples=1000,\
+	no_training = 40000
+	train_data, train_label, test_data, test_label = mnist(noTrSamples=no_training,noTsSamples=20000,\
             digit_range=[0,1,2,3,4,5,6,7,8,9],\
-            noTrPerClass=no_training/10, noTsPerClass=100)
+            noTrPerClass=no_training/10, noTsPerClass=2000)
 	no_of_images = train_data.shape[1]
 	mu, sigma = 0.1, 0.2
 	# row1=train_data[:,0]
@@ -181,6 +181,21 @@ def main():
 	for bias in net.biases:
 		np.savetxt(bias_filename.format(i),bias)
 		i+=1
+	n = 20000
+	for i in range(n):
+	    # plot original image
+	    plt.matshow(x_test[i].reshape(28,28))
+	    plt.savefig(os.path.join(curr_d,orig_str.format(i)))
+	 
+
+	    # plot noisy image 
+	    plt.matshow(x_test_noisy[i].reshape(28, 28))
+	    plt.savefig(os.path.join(curr_d,noise_str.format(i)))
+
+	    # plot decoded image 
+	    plt.matshow(images[i].reshape(28, 28))
+	    plt.savefig(os.path.join(curr_d,dec_str.format(i)))
+
 
 
 
