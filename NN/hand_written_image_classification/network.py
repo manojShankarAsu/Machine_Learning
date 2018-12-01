@@ -8,10 +8,14 @@ import os
 import matplotlib.pyplot as plt
 
 def sigmoid(z):
-	return 1.0 / (1.0 + np.exp(-z)) 
+	#return 1.0 / (1.0 + np.exp(-z)) 
+	np.maximum(z, 0)
 
-def sigmoid_prime(z):
-	return sigmoid(z) * (1 - sigmoid(z))
+def sigmoid_prime(x):
+	#return sigmoid(z) * (1 - sigmoid(z))
+	x[x<=0] = 0
+	x[x>0] = 1
+	return x
 
 def square(z):
 	return z ** 2
@@ -152,7 +156,7 @@ def main():
 	# plt.matshow(noiserow1)
 	# plt.show()
 
-	net.SGD(new_train_data,500,10,1.2,test_data=None)
+	net.SGD(new_train_data,30,10,0.01,test_data=None)
 	print 'Predicted Data'
 	pred = net.feedforward(new_train_data[0][0])
 	pred=pred.reshape(28,28)
